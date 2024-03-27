@@ -20,6 +20,29 @@ builder.Services
     .AddInfrastructureLayer(builder.Configuration)
     .AddDomainLayer(builder.Configuration);
 
+var policyName = "allow-specific-origin";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: policyName,
+        policy =>
+        {
+            policy
+                .SetIsOriginAllowed(origin =>
+                {
+                    if (origin == "https://eventool.online")
+                        return true;
+                    
+                    var host = new Uri(origin).Host;
+
+                    return host == "localhost";
+                })
+                .AllowAnyHeader()
+                .AllowCredentials()
+                .AllowAnyMethod();
+        });
+});
+
 builder.Services
     .AddGraphQLServer()
     .AddAuthorization()
@@ -44,6 +67,8 @@ builder.Services
     });
 
 var app = builder.Build();
+
+app.UseCors(policyName);
 
 app.UseAuthentication();
 
