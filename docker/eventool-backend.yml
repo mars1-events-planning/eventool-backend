@@ -1,0 +1,38 @@
+version: '3.7'
+
+services:
+  backend:
+    image: cr.eventool.online/eventool-backend:0.0.8
+    secrets:
+      - Database__Password
+      - Database__Username
+      - Jwt__Key
+    networks:
+      - proxy
+      - backend_network
+    deploy:
+      mode: replicated
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+      replicas: 1
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.http.services.backend.loadbalancer.server.port=8080'
+        - 'traefik.http.routers.backend.rule=Host(`backend.eventool.online`)'
+        - 'traefik.http.routers.backend.tls.certresolver=myresolver'
+
+networks:
+  proxy:
+    external: true
+  backend_network:
+    driver: overlay
+    attachable: true
+
+secrets:
+  Database__Password:
+    external: true
+  Database__Username:
+    external: true
+  Jwt__Key:
+    external: true

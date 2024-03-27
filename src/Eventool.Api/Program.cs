@@ -8,6 +8,13 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Environment.IsProduction())
+{
+    builder.Configuration
+        .AddJsonFile("appsettings.Production.json")
+        .AddKeyPerFile("/run/secrets");
+}
+
 builder.Services
     .AddApplicationLayer(builder.Configuration)
     .AddInfrastructureLayer(builder.Configuration)

@@ -23,15 +23,18 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddMarten(options =>
             {
-                options.Connection(configuration.GetConnectionString("Database")!);
+                options.Connection(GetConnectionString(configuration));
                 options.AutoCreateSchemaObjects = AutoCreate.All;
                 options.DatabaseSchemaName = "eventool";
                 options.UseDefaultSerialization(
-                    casing: Casing.SnakeCase, 
+                    casing: Casing.SnakeCase,
                     enumStorage: EnumStorage.AsString,
                     collectionStorage: CollectionStorage.AsArray);
             })
             .OptimizeArtifactWorkflow()
             .Services
             .AddTransient<IUnitOfWork, UnitOfWork>();
+
+    private static string GetConnectionString(IConfiguration c) =>
+        $"Host={c["Database:Host"]};Port={c["Database:Port"]};Database={c["Database:Database"]};Username={c["Database:Username"]};Password={c["Database:Password"]};";
 }
