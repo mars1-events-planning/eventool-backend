@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   backend:
-    image: cr.eventool.online/eventool-backend:0.0.15
+    image: cr.eventool.online/eventool-backend:$IMAGE_TAG
     secrets:
       - Database__Password
       - Database__Username
