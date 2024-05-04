@@ -13,7 +13,7 @@ public class Event(
     private string? _description;
     private string? _address;
     private DateTime? _startAtUtc;
-    private List<Checklist> _checklists = [];
+    private readonly List<Checklist> _checklists = [];
 
     public DateTime CreatedAt { get; } = EnsureUtc(createdAtUtc);
 
@@ -50,6 +50,7 @@ public class Event(
     public IReadOnlyList<Checklist> Checklists => _checklists.AsReadOnly();
 
     public void AddChecklist(Checklist checklist) => _checklists.Add(checklist);
+    public void RemoveChecklist(Checklist checklist) => _checklists.Remove(checklist);
 
     public void SetTitle(string title) => Title = title;
 
