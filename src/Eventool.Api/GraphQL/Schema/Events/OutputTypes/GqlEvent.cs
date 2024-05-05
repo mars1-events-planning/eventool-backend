@@ -21,6 +21,8 @@ public class GqlEvent(Event @event)
     
     public IEnumerable<GqlChecklist> Checklists { get; } = @event.Checklists.Select(x => new GqlChecklist(x));
 
+    public IEnumerable<GqlGuest> Guests { get; } = @event.Guests.Select(x => new GqlGuest(x));
+
     [GraphQLName("creator")]
     public async Task<GqlOrganizer> GetCreator(
         [Service] IUnitOfWork unitOfWork,
@@ -30,6 +32,17 @@ public class GqlEvent(Event @event)
             var organizer = await repositories.OrganizersRepository.TryGetByIdAsync(@event.CreatorId, cancellationToken);
             return organizer is null ? throw new NotFoundByUsernameException() : new GqlOrganizer(organizer);
         }, cancellationToken);
+}
+
+public class GqlGuest(Guest guest)
+{
+    public Guid Id { get; } = guest.Id;
+
+    public string Name { get; } = guest.Name;
+
+    public string Contact { get; } = guest.Contact;
+
+    public IEnumerable<string> Tags { get; } = guest.Tags;
 }
 
 public class GqlChecklist(Checklist checklist)

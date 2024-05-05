@@ -108,11 +108,19 @@ public record EventInput(
     Optional<string?> Description,
     Optional<string?> Address,
     Optional<DateTime?> StartDateTimeUtc,
-    Optional<IEnumerable<ChecklistInput>?> Checklists
+    Optional<IEnumerable<ChecklistInput>?> Checklists,
+    Optional<IEnumerable<GuestInput>?> Guests
 );
 
 public record ChecklistInput(
     Optional<Guid?> Id,
     string Title,
     IEnumerable<ChecklistItem> ChecklistItems
+);
+
+public record GuestInput(
+    Optional<Guid?> Id,
+    string Name,
+    string Contact,
+    IEnumerable<string> Tags
 );

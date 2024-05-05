@@ -25,6 +25,8 @@ public class EventDocument : IDocument<EventDocument, Event>
 
     [JsonProperty("checklists")] public IEnumerable<ChecklistDocument> Checklists { get; set; } = [];
 
+    [JsonProperty("guests")] public IEnumerable<GuestDocument> Guests { get; set; } = [];
+    
     public Event ToDomainObject()
     {
         var e = new Event(Id, CreatorId, createdAtUtc: CreatedAt, Title)
@@ -36,6 +38,9 @@ public class EventDocument : IDocument<EventDocument, Event>
         };
         foreach (var checklist in Checklists)
             e.AddChecklist(checklist.ToDomainObject());
+        
+        foreach (var guest in Guests)
+            e.AddGuest(guest.ToDomainObject());
 
         return e;
     }
@@ -50,6 +55,36 @@ public class EventDocument : IDocument<EventDocument, Event>
         CreatedAt = domainObject.CreatedAt,
         ChangedAtUtc = domainObject.ChangedAtUtc,
         StartAtUtc = domainObject.StartAtUtc,
-        Checklists = domainObject.Checklists.Select(ChecklistDocument.Create)
+        Checklists = domainObject.Checklists.Select(ChecklistDocument.Create),
+        Guests = domainObject.Guests.Select(GuestDocument.Create)
+    };
+}
+
+[DocumentAlias("guests")]
+public class GuestDocument : IDocument<GuestDocument, Guest>
+{
+    [Identity] [JsonProperty("id")] public Guid Id { get; set; }
+
+    [JsonProperty("name")] public string Name { get; set; }
+
+    [JsonProperty("photo_url")] public string? PhotoUrl { get; set; }
+
+    [JsonProperty("contact")] public string Contact { get; set; }
+
+    [JsonProperty("tags")] public IEnumerable<string> Tags { get; set; } = [];
+
+    public Guest ToDomainObject() => new Guest(Id, Name, Contact)
+    {
+        Tags = Tags,
+        PhotoUrl = PhotoUrl
+    };
+
+    public static GuestDocument Create(Guest domainObject) => new()
+    {
+        Id = domainObject.Id,
+        Contact = domainObject.Contact,
+        Name = domainObject.Name,
+        PhotoUrl = domainObject.PhotoUrl,
+        Tags = domainObject.Tags
     };
 }

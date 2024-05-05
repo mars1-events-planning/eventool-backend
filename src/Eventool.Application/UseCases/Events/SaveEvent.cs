@@ -13,7 +13,14 @@ public record EventChanges(
     Optional<string?> Description,
     Optional<string?> Address,
     Optional<DateTime?> StartDateTimeUtc,
-    Optional<IEnumerable<ChecklistChanges>> Checklists);
+    Optional<IEnumerable<ChecklistChanges>> Checklists,
+    Optional<IEnumerable<GuestChanges>> Guests);
+
+public record GuestChanges(
+    Optional<Guid?> Id,
+    string Name,
+    string Contact,
+    IEnumerable<string> Tags);
 
 public record ChecklistChanges(
     Optional<Guid?> ChecklistId,
@@ -68,23 +75,12 @@ public class SaveEventHandler(
             request.EventChanges.Address.IfSet(v => @event.SetAddress(v));
             request.EventChanges.Description.IfSet(v => @event.SetDescription(v));
             request.EventChanges.StartDateTimeUtc.IfSet(v => @event.SetStartAtUtc(v));
-            request.EventChanges.Checklists.IfSet(checklists =>
-            {
-                var checklistChangesEnumerable = checklists as ChecklistChanges[] ?? checklists.ToArray();
-                var newChecklists = checklistChangesEnumerable.Where(x =>
-                    x.ChecklistId.IsSet == false || (x.ChecklistId.IsSet && x.ChecklistId.Value.HasValue == false));
-                var oldChecklists =
-                    checklistChangesEnumerable.Where(x => x.ChecklistId.IsSet && x.ChecklistId.Value.HasValue == true);
-
-                foreach (var newChecklist in newChecklists)
-                {
-                    var checklist = new Checklist(id: Guid.NewGuid(), title: newChecklist.Title);
-                    checklist.SetItems(newChecklist.ChecklistItems);
-
-                    @event.AddChecklist(checklist);
-                }
-
-                foreach (var oldChecklist in oldChecklists)
+            request.EventChanges.Checklists.IfSet(checklistsChanges => ProcessCollectionChanges(
+                changes: checklistsChanges,
+                isOld: x => x.ChecklistId is { IsSet: true, Value: not null },
+                isNew: x => x.ChecklistId.IsSet == false ||
+                            (x.ChecklistId.IsSet && x.ChecklistId.Value.HasValue == false),
+                processOldEntity: oldChecklist =>
                 {
                     var checklist = new Checklist(id: oldChecklist.ChecklistId.Value!.Value, title: oldChecklist.Title);
                     checklist.SetItems(oldChecklist.ChecklistItems);
@@ -97,13 +93,65 @@ public class SaveEventHandler(
 
                     @event.RemoveChecklist(deprecatedChecklist);
                     @event.AddChecklist(checklist);
-                }
-            });
+                },
+                processNewEntity: newChecklist =>
+                {
+                    var checklist = new Checklist(id: Guid.NewGuid(), title: newChecklist.Title);
+                    checklist.SetItems(newChecklist.ChecklistItems);
+
+                    @event.AddChecklist(checklist);
+                }));
+            request.EventChanges.Guests.IfSet(guestsChanges => ProcessCollectionChanges(
+                changes: guestsChanges,
+                isOld: x => x.Id is { IsSet: true, Value: not null },
+                isNew: x => x.Id.IsSet == false || (x.Id.IsSet && x.Id.Value.HasValue == false),
+                processOldEntity: oldGuest =>
+                {
+                    var guest = new Guest(id: oldGuest.Id.Value!.Value, name: oldGuest.Name, contact: oldGuest.Contact)
+                    {
+                        Tags = oldGuest.Tags
+                    };
+
+                    var deprecatedGuest =
+                        @event.Guests.FirstOrDefault(x => x.Id == oldGuest.Id.Value) ??
+                        throw new InvalidOperationException("No guest with such ID in event");
+
+                    @event.RemoveGuest(deprecatedGuest);
+                    @event.AddGuest(guest);
+                },
+                processNewEntity: newGuest =>
+                {
+                    var guest = new Guest(id: Guid.NewGuid(), name: newGuest.Name, contact: newGuest.Contact)
+                    {
+                        Tags = newGuest.Tags
+                    };
+
+                    @event.AddGuest(guest);
+                }));
 
             events.Save(@event);
 
             return @event;
         }, cancellationToken);
+
+
+    private static void ProcessCollectionChanges<TChanges>(
+        IEnumerable<TChanges> changes,
+        Func<TChanges, bool> isOld,
+        Func<TChanges, bool> isNew,
+        Action<TChanges> processNewEntity,
+        Action<TChanges> processOldEntity)
+    {
+        var enumeratedChanges = changes.ToList();
+        var oldEntities = enumeratedChanges.Where(isOld);
+        var newEntities = enumeratedChanges.Where(isNew);
+
+        foreach (var newEntity in newEntities)
+            processNewEntity(newEntity);
+
+        foreach (var oldEntity in oldEntities)
+            processOldEntity(oldEntity);
+    }
 }
 
 public class SaveEventRequestValidator : AbstractValidator<SaveEventRequest>

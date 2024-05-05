@@ -14,6 +14,7 @@ public class Event(
     private string? _address;
     private DateTime? _startAtUtc;
     private readonly List<Checklist> _checklists = [];
+    private readonly List<Guest> _guests = [];
 
     public DateTime CreatedAt { get; } = EnsureUtc(createdAtUtc);
 
@@ -52,6 +53,11 @@ public class Event(
     public void AddChecklist(Checklist checklist) => _checklists.Add(checklist);
     public void RemoveChecklist(Checklist checklist) => _checklists.Remove(checklist);
 
+    public IReadOnlyList<Guest> Guests => _guests.AsReadOnly();
+
+    public void AddGuest(Guest guest) => _guests.Add(guest);
+    public void RemoveGuest(Guest guest) => _guests.Remove(guest);
+
     public void SetTitle(string title) => Title = title;
 
     public void SetDescription(string? description) => _description = description;
@@ -64,4 +70,15 @@ public class Event(
     private static DateTime EnsureUtc(DateTime dt) => dt.Kind is DateTimeKind.Utc
         ? dt
         : throw new ArgumentException("DateTime should be UTC!");
+}
+
+public class Guest(Guid id, string name, string contact) : Entity<Guid>(id)
+{
+    public string Name { get; } = name;
+
+    public string? PhotoUrl { get; set; }
+
+    public string Contact { get; } = contact;
+
+    public IEnumerable<string> Tags { get; set; } = [];
 }
