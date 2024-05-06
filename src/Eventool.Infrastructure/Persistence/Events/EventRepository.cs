@@ -26,4 +26,9 @@ public class EventRepository(IDocumentSession session)
 
     public async Task<Event?> GetByIdAsync(Guid eventId, CancellationToken ct) =>
         (await Session.LoadAsync<EventDocument>(eventId, ct))?.ToDomainObject();
+
+    public void Remove(Event @event)
+    {
+        Session.Delete<EventDocument>(@event.Id);
+    }
 }

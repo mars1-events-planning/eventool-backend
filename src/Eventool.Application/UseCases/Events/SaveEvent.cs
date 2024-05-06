@@ -32,7 +32,7 @@ public record SaveEventRequest(
     EventChanges EventChanges
 ) : IRequest<Event>;
 
-public class SaveEventHandler(
+public class SaveEventRequestHandler(
     IValidator<SaveEventRequest> validator,
     IUnitOfWork unitOfWork
 ) : IRequestHandler<SaveEventRequest, Event>

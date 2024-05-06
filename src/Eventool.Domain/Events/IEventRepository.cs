@@ -7,4 +7,6 @@ public interface IEventRepository
     public Task<IEnumerable<Event>> GetListByCreatorIdAsync(Guid creatorId, int pageNumber, CancellationToken ct);
 
     public Task<Event?> GetByIdAsync(Guid eventId, CancellationToken ct);
+
+    public void Remove(Event @event);
 }

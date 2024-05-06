@@ -100,6 +100,64 @@ public class RootMutation
 
         return new GqlEvent(@event);
     }
+
+    [Authorize]
+    [Error<ValidationException>]
+    [Error<UnauthorizedAccessException>]
+    public async Task<GqlEvent> DeleteEventAsync(
+        [Service] IMediator mediator,
+        ClaimsPrincipal claimsPrincipal,
+        CancellationToken cancellationToken,
+        string eventId)
+    {
+        var request = new DeleteEventRequest(
+            OrganizerId: claimsPrincipal.GetOrganizerId(),
+            EventId: Guid.Parse(eventId));
+
+        var @event = await mediator.Send(request, cancellationToken);
+
+        return new GqlEvent(@event);
+    }
+    
+    [Authorize]
+    [Error<ValidationException>]
+    [Error<UnauthorizedAccessException>]
+    public async Task<GqlEvent> DeleteGuestAsync(
+        [Service] IMediator mediator,
+        ClaimsPrincipal claimsPrincipal,
+        CancellationToken cancellationToken,
+        string eventId,
+        string guestId)
+    {
+        var request = new DeleteGuestRequest(
+            OrganizerId: claimsPrincipal.GetOrganizerId(),
+            EventId: Guid.Parse(eventId),
+            GuestId: Guid.Parse(guestId));
+
+        var @event = await mediator.Send(request, cancellationToken);
+
+        return new GqlEvent(@event);
+    }
+    
+    [Authorize]
+    [GraphQLName("deleteChecklist")]
+    [Error<UnauthorizedAccessException>]
+    public async Task<GqlEvent> DeleteChecklistAsync(
+        [Service] IMediator mediator,
+        ClaimsPrincipal claimsPrincipal,
+        CancellationToken cancellationToken,
+        string eventId,
+        string checklistId)
+    {
+        var request = new DeleteChecklistRequest(
+            OrganizerId: claimsPrincipal.GetOrganizerId(),
+            EventId: Guid.Parse(eventId),
+            ChecklistId: Guid.Parse(checklistId));
+
+        var @event = await mediator.Send(request, cancellationToken);
+
+        return new GqlEvent(@event);
+    }
 }
 
 public record EventInput(
