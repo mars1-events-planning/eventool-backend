@@ -10,7 +10,11 @@ public class Organizer(
     : Entity<Guid>(id), IAggregateRoot
 {
     public string Fullname { get; private set; } = fullname;
+
     public string Username { get; private set; } = username;
+
+    public string? PhotoUrl { get; set; }
+
     public HashedPassword HashedPassword { get; private set; } = hashedPassword;
     
     public void ChangePassword(HashedPassword newPassword) => HashedPassword = newPassword;

@@ -16,6 +16,10 @@ public class OrganizerDocument : IDocument<OrganizerDocument, Organizer>
 
     [JsonProperty("username")]
     public string Username { get; set; } = null!;
+    
+    [JsonProperty("photo_url")]
+    public string? PhotoUrl { get; set; }
+
 
     [JsonProperty("password_hash")]
     public string PasswordHash { get; set; } = null!;
@@ -28,7 +32,10 @@ public class OrganizerDocument : IDocument<OrganizerDocument, Organizer>
         FullName,
         Username, 
         new HashedPassword(PasswordHash, PasswordSalt)
-    );
+    )
+    {
+        PhotoUrl = PhotoUrl
+    };
 
     public static OrganizerDocument Create(Organizer domainObject) => new()
     {
@@ -36,6 +43,7 @@ public class OrganizerDocument : IDocument<OrganizerDocument, Organizer>
         FullName = domainObject.Fullname,
         Username = domainObject.Username,
         PasswordHash = domainObject.HashedPassword.Value,
-        PasswordSalt = domainObject.HashedPassword.Salt
+        PasswordSalt = domainObject.HashedPassword.Salt,
+        PhotoUrl = domainObject.PhotoUrl
     };
 }

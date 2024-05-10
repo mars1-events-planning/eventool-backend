@@ -1,4 +1,6 @@
+using Eventool.Domain.Common;
 using Eventool.Domain.Organizers;
+using Eventool.Infrastructure.Images;
 using Eventool.Infrastructure.Persistence;
 using Eventool.Infrastructure.Utility;
 using Marten;
@@ -15,7 +17,9 @@ public static class ServiceCollectionExtensions
         IConfiguration configuration) =>
         serviceCollection
             .AddPersistence(configuration)
-            .AddTransient<IAuthenticationTokenGenerator, JwtGenerator>();
+            .AddTransient<IAuthenticationTokenGenerator, JwtGenerator>()
+            .AddTransient<IImageStorage, S3ImageStorage>()
+            .Configure<S3Options>(configuration.GetSection(S3Options.Section));
 
     private static IServiceCollection AddPersistence(
         this IServiceCollection serviceCollection,

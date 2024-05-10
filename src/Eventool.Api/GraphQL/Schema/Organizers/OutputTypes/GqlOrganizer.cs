@@ -13,4 +13,7 @@ public class GqlOrganizer(Organizer organizer)
 
     [GraphQLName("username")] 
     public string Username { get; } = organizer.Username;
+    
+    [GraphQLName("photoUrl")]
+    public string? PhotoUrl { get; } = organizer.PhotoUrl;
 }

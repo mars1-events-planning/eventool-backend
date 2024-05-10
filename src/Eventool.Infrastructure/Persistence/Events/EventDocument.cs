@@ -23,6 +23,8 @@ public class EventDocument : IDocument<EventDocument, Event>
 
     [JsonProperty("creator_id")] public Guid CreatorId { get; set; }
 
+    [JsonProperty("photos")] public IEnumerable<string> Photos { get; set; } = [];
+
     [JsonProperty("checklists")] public IEnumerable<ChecklistDocument> Checklists { get; set; } = [];
 
     [JsonProperty("guests")] public IEnumerable<GuestDocument> Guests { get; set; } = [];
@@ -36,6 +38,9 @@ public class EventDocument : IDocument<EventDocument, Event>
             ChangedAtUtc = ChangedAtUtc,
             StartAtUtc = StartAtUtc
         };
+        foreach (var photo in Photos)
+            e.AddImageUrl(photo);
+        
         foreach (var checklist in Checklists)
             e.AddChecklist(checklist.ToDomainObject());
         
@@ -56,7 +61,8 @@ public class EventDocument : IDocument<EventDocument, Event>
         ChangedAtUtc = domainObject.ChangedAtUtc,
         StartAtUtc = domainObject.StartAtUtc,
         Checklists = domainObject.Checklists.Select(ChecklistDocument.Create),
-        Guests = domainObject.Guests.Select(GuestDocument.Create)
+        Guests = domainObject.Guests.Select(GuestDocument.Create),
+        Photos = domainObject.ImagesUrls
     };
 }
 

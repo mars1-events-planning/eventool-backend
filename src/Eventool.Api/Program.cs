@@ -32,7 +32,7 @@ builder.Services.AddCors(options =>
                 {
                     if (origin == "https://eventool.online")
                         return true;
-                    
+
                     var host = new Uri(origin).Host;
 
                     return host == "localhost";
@@ -71,6 +71,8 @@ var app = builder.Build();
 app.UseCors(policyName);
 
 app.UseAuthentication();
+
+app.MapImageEndpoints();
 
 app.MapGraphQL();
 

@@ -15,6 +15,7 @@ public class Event(
     private DateTime? _startAtUtc;
     private readonly List<Checklist> _checklists = [];
     private readonly List<Guest> _guests = [];
+    private readonly List<string> _imagesUrls = [];
 
     public DateTime CreatedAt { get; } = EnsureUtc(createdAtUtc);
 
@@ -48,13 +49,15 @@ public class Event(
         init => _startAtUtc = value.HasValue ? EnsureUtc(value.Value) : null;
     }
 
+    public IReadOnlyCollection<string> ImagesUrls => _imagesUrls.AsReadOnly();
+    public void AddImageUrl(string url) => _imagesUrls.Add(url);
+    public void RemoveImageUrl(string url) => _imagesUrls.Remove(url);
+    
     public IReadOnlyList<Checklist> Checklists => _checklists.AsReadOnly();
-
     public void AddChecklist(Checklist checklist) => _checklists.Add(checklist);
     public void RemoveChecklist(Checklist checklist) => _checklists.Remove(checklist);
 
     public IReadOnlyList<Guest> Guests => _guests.AsReadOnly();
-
     public void AddGuest(Guest guest) => _guests.Add(guest);
     public void RemoveGuest(Guest guest) => _guests.Remove(guest);
 

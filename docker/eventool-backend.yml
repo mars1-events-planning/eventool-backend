@@ -7,6 +7,9 @@ services:
       - Database__Password
       - Database__Username
       - Jwt__Key
+      - S3Images__AccessKey
+      - S3Images__SecretAccessKey
+      - S3Images__BucketName
     networks:
       - proxy
       - backend_network

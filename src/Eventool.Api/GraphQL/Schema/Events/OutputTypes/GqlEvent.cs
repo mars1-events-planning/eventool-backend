@@ -18,6 +18,8 @@ public class GqlEvent(Event @event)
     public DateTime ChangedAtUtc { get; } = @event.ChangedAtUtc;
 
     public DateTime? StartAtUtc { get; } = @event.StartAtUtc;
+
+    public IEnumerable<string> Photos { get; } = @event.ImagesUrls;
     
     public IEnumerable<GqlChecklist> Checklists { get; } = @event.Checklists.Select(x => new GqlChecklist(x));
 
@@ -41,6 +43,8 @@ public class GqlGuest(Guest guest)
     public string Name { get; } = guest.Name;
 
     public string Contact { get; } = guest.Contact;
+
+    public string? PhotoUrl { get; } = guest.PhotoUrl;
 
     public IEnumerable<string> Tags { get; } = guest.Tags;
 }
