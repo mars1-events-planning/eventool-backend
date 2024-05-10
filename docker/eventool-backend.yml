@@ -39,3 +39,9 @@ secrets:
     external: true
   Jwt__Key:
     external: true
+  S3Images__AccessKey:
+    external: true
+  S3Images__SecretAccessKey:
+    external: true
+  S3Images__BucketName:
+    external: true
